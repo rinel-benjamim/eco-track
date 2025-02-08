@@ -12,14 +12,18 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev \
     curl \
-    openapi-generator-cli \
+    openjdk-17-jre \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_sqlite zip bcmath \
     && a2enmod rewrite
 
-# Instalar Node.js e npm (última versão estável LTS)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+# Instalar OpenAPI Generator CLI manualmente
+RUN wget -O /usr/local/bin/openapi-generator-cli https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.0.1/openapi-generator-cli-7.0.1.jar \
+    && chmod +x /usr/local/bin/openapi-generator-cli
+
+# Criar um link simbólico para facilitar o uso do OpenAPI Generator
+RUN echo '#!/bin/sh\nexec java -jar /usr/local/bin/openapi-generator-cli "$@"' > /usr/local/bin/openapi-generator \
+    && chmod +x /usr/local/bin/openapi-generator
 
 # Definir o diretório de trabalho para a aplicação Laravel
 WORKDIR /var/www/html
