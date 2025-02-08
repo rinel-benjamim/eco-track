@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev \
     curl \
+    openapi-generator-cli \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_sqlite zip \
+    && docker-php-ext-install gd pdo pdo_sqlite zip bcmath \
     && a2enmod rewrite
 
 # Instalar Node.js e npm (última versão estável LTS)
@@ -29,7 +30,7 @@ COPY . .
 # Criar um novo .env a partir do .env.example, caso não exista
 RUN if [ ! -f /var/www/html/.env ]; then cp .env.example .env; fi
 
-# Ajustar as permissões dos arquivos para o Apache
+# Ajustar as permissões dos arquivos para o Apache e Laravel
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
@@ -40,6 +41,9 @@ RUN if [ ! -f /var/www/html/database/database.sqlite ]; then touch /var/www/html
 RUN chmod -R 777 /var/www/html/database/database.sqlite \
     && chown -R www-data:www-data /var/www/html/database \
     && chmod -R 775 /var/www/html/database
+
+# Ajustar permissões para storage e cache
+RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Ajustar o DocumentRoot do Apache para o diretório public do Laravel
 RUN sed -i 's|/var/www/html|/var/www/html/public|' /etc/apache2/sites-available/000-default.conf
@@ -54,8 +58,14 @@ RUN composer install --no-dev --optimize-autoloader
 # Instalar dependências do Vite e rodar o build
 RUN npm install && npm run build
 
+# Instalar Faker (se necessário)
 RUN composer require fakerphp/faker --no-interaction --no-scripts
 
+# Instalar o L5 Swagger
+RUN composer require "darkaonline/l5-swagger" --no-interaction --no-scripts
+
+# Gerar a documentação do Swagger
+RUN php artisan l5-swagger:generate
 
 # Rodar as migrações com seed (somente se o banco de dados SQLite estiver configurado corretamente)
 RUN php artisan migrate --seed --force
