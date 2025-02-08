@@ -35,19 +35,23 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Category::factory()->create([
-            'category' => 'Reciclagem'
+            'category' => 'Reciclagem',
+            'points' => 10
         ]);
 
         Category::factory()->create([
-            'category' => 'Energia'
+            'category' => 'Energia',
+            'points' => 20
         ]);
 
         Category::factory()->create([
-            'category' => 'Água'
+            'category' => 'Água',
+            'points' => 40
         ]);
 
         Category::factory()->create([
-            'category' => 'Mobilidade'
+            'category' => 'Mobilidade',
+            'points' => 80
         ]);
     }
 }
