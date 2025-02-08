@@ -12,15 +12,19 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev \
     curl \
-    wget \  # Adicionado wget aqui
+    wget \
     openjdk-17-jre \
+    nodejs \
+    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_sqlite zip bcmath \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instalar OpenAPI Generator CLI manualmente
 RUN wget -O /usr/local/bin/openapi-generator-cli https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.0.1/openapi-generator-cli-7.0.1.jar \
-    && chmod +x /usr/local/bin/openapi-generator-cli
+    && chmod 755 /usr/local/bin/openapi-generator-cli
 
 # Criar um alias para facilitar o uso do OpenAPI Generator
 RUN echo '#!/bin/sh\nexec java -jar /usr/local/bin/openapi-generator-cli "$@"' > /usr/local/bin/openapi-generator \
@@ -33,19 +37,16 @@ WORKDIR /var/www/html
 COPY . .
 
 # Criar um novo .env a partir do .env.example, caso não exista
-RUN if [ ! -f /var/www/html/.env ]; then cp .env.example .env; fi
+RUN cp .env.example .env || true
 
-# Ajustar as permissões dos arquivos para o Apache e Laravel
+# Ajustar permissões dos arquivos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Criar o banco de dados SQLite, se não existir
-RUN if [ ! -f /var/www/html/database/database.sqlite ]; then touch /var/www/html/database/database.sqlite; fi
-
-# Garantir que o banco de dados SQLite tenha as permissões corretas
-RUN chmod -R 777 /var/www/html/database/database.sqlite \
-    && chown -R www-data:www-data /var/www/html/database \
-    && chmod -R 775 /var/www/html/database
+RUN mkdir -p /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite \
+    && chmod 777 /var/www/html/database/database.sqlite
 
 # Ajustar permissões para storage e cache
 RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
@@ -58,10 +59,10 @@ RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
 # Rodar o Composer para instalar as dependências do Laravel
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Instalar dependências do Vite e rodar o build
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 # Instalar Faker (se necessário)
 RUN composer require fakerphp/faker --no-interaction --no-scripts
@@ -72,17 +73,20 @@ RUN composer require "darkaonline/l5-swagger" --no-interaction --no-scripts
 # Gerar a documentação do Swagger
 RUN php artisan l5-swagger:generate
 
-# Rodar as migrações com seed (somente se o banco de dados SQLite estiver configurado corretamente)
+# Rodar as migrações com seed
 RUN php artisan migrate --seed --force
 
 # Gerar a chave da aplicação Laravel
 RUN php artisan key:generate
 
-# Garantir que os arquivos estáticos gerados pelo Vite (CSS/JS) tenham permissões corretas
+# Criar cache de configuração para otimizar o Laravel
+RUN php artisan config:cache && php artisan route:cache
+
+# Garantir que os arquivos estáticos do Vite tenham permissões corretas
 RUN chmod -R 777 /var/www/html/public/build/assets
 
 # Expor a porta 80 para acesso externo
 EXPOSE 80
 
-# Iniciar o Apache em primeiro plano
+# Comando final para rodar o Apache e o Laravel
 CMD ["apache2-foreground"]
