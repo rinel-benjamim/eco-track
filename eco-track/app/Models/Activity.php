@@ -14,7 +14,9 @@ class Activity extends Model
     protected $fillable = [
         'user_id',
         'description',
-        'points'
+        'points',
+        'title',
+        'category'
     ];
     
     public function user()

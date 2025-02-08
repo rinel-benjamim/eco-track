@@ -27,13 +27,17 @@ class ActivityController extends Controller
     {
         $request->validate([
             'description' => 'required|string|max:500',
-            'points' => 'required|integer|min:1'
+            'points' => 'required|integer|min:1',
+            'title' => 'required|string|max:255',
+            'category'=> 'required|string|max:255'
         ]);
 
         // Criar a atividade
         $activity = Activity::create([
             'description' => $request->description,
             'points' => $request->points,
+            'title' => $request->title,
+            'category' => $request->category,
             'user_id' => Auth::id()
         ]);
 
@@ -73,13 +77,6 @@ class ActivityController extends Controller
         return response()->json($activity, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Activity $activity)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.

@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');                      
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');     
+            $table->string('title');
+            $table->enum('category', ['Reciclagem', 'Energia', 'Água', 'Mobilidade']);
             $table->text('description');
             $table->integer('points');
             $table->timestamps();
