@@ -8,10 +8,27 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
+/**
+ * @OA\Tag(
+ *     name="Atividades",
+ *     description="Gerenciamento das atividades sustentáveis dos usuários"
+ * )
+ */
+
 class ActivityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
+     /**
+     * Listar todas as atividades do usuário autenticado
+     *
+     * @OA\Get(
+     *     path="/activities",
+     *     summary="Listar atividades",
+     *     security={{"sanctum":{}}},
+     *     tags={"Atividades"},
+     *     @OA\Response(response=200, description="Lista de atividades do usuário autenticado"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
      */
     public function index(): JsonResponse
     {
@@ -24,8 +41,28 @@ class ActivityController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
+     /**
+     * Criar uma nova atividade
+     *
+     * @OA\Post(
+     *     path="/activities",
+     *     summary="Criar uma nova atividade",
+     *     security={{"sanctum":{}}},
+     *     tags={"Atividades"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"description", "points", "title", "category"},
+     *             @OA\Property(property="description", type="string", maxLength=500, example="Participei de uma campanha de reciclagem"),
+     *             @OA\Property(property="points", type="integer", minimum=1, example=10),
+     *             @OA\Property(property="title", type="string", maxLength=255, example="Reciclagem de Plástico"),
+     *             @OA\Property(property="category", type="string", maxLength=255, example="Reciclagem")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Atividade criada com sucesso"),
+     *     @OA\Response(response=422, description="Dados inválidos"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
      */
     public function store(Request $request): JsonResponse
     {
@@ -64,8 +101,26 @@ class ActivityController extends Controller
             'activity' => $activity
         ], 201);
     }
-    /**
-     * Display the specified resource.
+   
+      /**
+     * Obter detalhes de uma atividade específica
+     *
+     * @OA\Get(
+     *     path="/activities/{id}",
+     *     summary="Obter detalhes de uma atividade",
+     *     security={{"sanctum":{}}},
+     *     tags={"Atividades"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da atividade"
+     *     ),
+     *     @OA\Response(response=200, description="Atividade encontrada"),
+     *     @OA\Response(response=404, description="Atividade não encontrada"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
      */
     public function show(string $id): JsonResponse
     {
@@ -82,8 +137,25 @@ class ActivityController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
+     /**
+     * Excluir uma atividade
+     *
+     * @OA\Delete(
+     *     path="/activities/{id}",
+     *     summary="Excluir atividade",
+     *     security={{"sanctum":{}}},
+     *     tags={"Atividades"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da atividade"
+     *     ),
+     *     @OA\Response(response=200, description="Atividade excluída com sucesso"),
+     *     @OA\Response(response=404, description="Atividade não encontrada"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
      */
     public function destroy(string $id): JsonResponse
     {
@@ -101,6 +173,36 @@ class ActivityController extends Controller
         return response()->json(['message' => 'Atividade excluída com sucesso'], 200);
     }
 
+    /**
+     * Atualizar uma atividade existente
+     *
+     * @OA\Put(
+     *     path="/activities/{id}",
+     *     summary="Atualizar atividade",
+     *     security={{"sanctum":{}}},
+     *     tags={"Atividades"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="ID da atividade"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="description", type="string", maxLength=500, example="Nova descrição"),
+     *             @OA\Property(property="points", type="integer", minimum=1, example=15),
+     *             @OA\Property(property="title", type="string", maxLength=255, example="Título atualizado"),
+     *             @OA\Property(property="category", type="string", example="Energia")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Atividade atualizada com sucesso"),
+     *     @OA\Response(response=404, description="Atividade não encontrada"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function update(Request $request, string $id): JsonResponse
     {
         $request->validate([

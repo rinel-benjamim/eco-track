@@ -8,9 +8,38 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @OA\Tag(
+ *     name="Autenticação",
+ *     description="Endpoints para autenticação de usuários"
+ * )
+ */
+
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse {
+    /**
+     * Registrar um novo usuário
+     *
+     * @OA\Post(
+     *     path="/register",
+     *     summary="Registrar um usuário",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "password"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Usuário registrado com sucesso"),
+     *     @OA\Response(response=400, description="Dados inválidos")
+     * )
+     */
+
+    public function register(Request $request): JsonResponse
+    {
 
         $request->validate([
             'name' =>       ['required', 'string', 'max:255'],
@@ -41,7 +70,27 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request): JsonResponse {
+    /**
+     * Login do usuário
+     *
+     * @OA\Post(
+     *     path="/login",
+     *     summary="Fazer login",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Login bem-sucedido"),
+     *     @OA\Response(response=401, description="Credenciais inválidas")
+     * )
+     */
+    public function login(Request $request): JsonResponse
+    {
 
         $request->validate([
             'email' =>      ['required', 'string', 'max:255'],
@@ -65,7 +114,20 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request): JsonResponse {
+    /**
+     * Logout do usuário autenticado
+     *
+     * @OA\Post(
+     *     path="/logout",
+     *     summary="Fazer logout",
+     *     security={{"sanctum":{}}},
+     *     tags={"Autenticação"},
+     *     @OA\Response(response=200, description="Logout bem-sucedido"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
+     */
+    public function logout(Request $request): JsonResponse
+    {
         $request->user()->tokens()->delete();
 
         return response()->json([

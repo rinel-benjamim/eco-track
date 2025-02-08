@@ -1,0 +1,502 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "EcoTrack API",
+        "description": "API para monitoramento de atividades sustentáveis.",
+        "contact": {
+            "name": "Suporte EcoTrack",
+            "email": "suporte@ecotrack.com"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/activities": {
+            "get": {
+                "tags": [
+                    "Atividades"
+                ],
+                "summary": "Listar atividades",
+                "description": "Listar todas as atividades do usuário autenticado",
+                "operationId": "b14ed4d53a740144ff049ec7cc961f2c",
+                "responses": {
+                    "200": {
+                        "description": "Lista de atividades do usuário autenticado"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Atividades"
+                ],
+                "summary": "Criar uma nova atividade",
+                "description": "Criar uma nova atividade",
+                "operationId": "17ca1fdfc4a2bdfc45cf306f694fa5e1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "description",
+                                    "points",
+                                    "title",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Participei de uma campanha de reciclagem"
+                                    },
+                                    "points": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "example": 10
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Reciclagem de Plástico"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Reciclagem"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Atividade criada com sucesso"
+                    },
+                    "422": {
+                        "description": "Dados inválidos"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/activities/{id}": {
+            "get": {
+                "tags": [
+                    "Atividades"
+                ],
+                "summary": "Obter detalhes de uma atividade",
+                "description": "Obter detalhes de uma atividade específica",
+                "operationId": "ae4eeed64fd7953cc5b09cd0265ef919",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da atividade",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Atividade encontrada"
+                    },
+                    "404": {
+                        "description": "Atividade não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Atividades"
+                ],
+                "summary": "Atualizar atividade",
+                "description": "Atualizar uma atividade existente",
+                "operationId": "9cce514da02ea827e366ff51cf7bd8ce",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da atividade",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Nova descrição"
+                                    },
+                                    "points": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "example": 15
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Título atualizado"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "Energia"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atividade atualizada com sucesso"
+                    },
+                    "404": {
+                        "description": "Atividade não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "422": {
+                        "description": "Dados inválidos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Atividades"
+                ],
+                "summary": "Excluir atividade",
+                "description": "Excluir uma atividade",
+                "operationId": "37ae59b21572084eada983b39be30e04",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID da atividade",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Atividade excluída com sucesso"
+                    },
+                    "404": {
+                        "description": "Atividade não encontrada"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/register": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Registrar um usuário",
+                "description": "Registrar um novo usuário",
+                "operationId": "0903f2e0df1a8857bee538fc055417f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário registrado com sucesso"
+                    },
+                    "400": {
+                        "description": "Dados inválidos"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Fazer login",
+                "description": "Login do usuário",
+                "operationId": "2dd578ff7aba2721293dac66833b27d1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login bem-sucedido"
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Fazer logout",
+                "description": "Logout do usuário autenticado",
+                "operationId": "68a6108af04af5e3bc1ea68a6c6f1299",
+                "responses": {
+                    "200": {
+                        "description": "Logout bem-sucedido"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/ranking": {
+            "get": {
+                "tags": [
+                    "Pontuação"
+                ],
+                "summary": "Obter ranking de pontuação",
+                "description": "Obter o ranking dos 10 usuários com mais pontos",
+                "operationId": "156591daa638cfe48c60db4e78c308de",
+                "responses": {
+                    "200": {
+                        "description": "Top 10 usuários com mais pontos"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/me/points": {
+            "get": {
+                "tags": [
+                    "Pontuação"
+                ],
+                "summary": "Obter minha pontuação",
+                "description": "Obter a pontuação do usuário autenticado",
+                "operationId": "7a553de0e073e2e853a6c32be240eef7",
+                "responses": {
+                    "200": {
+                        "description": "Retorna a pontuação do usuário autenticado"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "404": {
+                        "description": "Usuário não possui pontos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Obter informações do usuário autenticado",
+                "description": "Obter detalhes do usuário autenticado",
+                "operationId": "9174a569ffd5f82da6d1982c9382d3ba",
+                "responses": {
+                    "200": {
+                        "description": "Dados do usuário autenticado"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Listar usuários",
+                "description": "Listar todos os usuários",
+                "operationId": "7e2f5799553ec93c9c43e2a58490d447",
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuários retornada com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Obter um usuário específico",
+                "description": "Exibir um usuário específico",
+                "operationId": "910a0c7cf580e1c605648d82a4e57f46",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário encontrado"
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Atividades",
+            "description": "Gerenciamento das atividades sustentáveis dos usuários"
+        },
+        {
+            "name": "Autenticação",
+            "description": "Endpoints para autenticação de usuários"
+        },
+        {
+            "name": "Pontuação",
+            "description": "Gerenciamento da pontuação dos usuários"
+        },
+        {
+            "name": "Usuários",
+            "description": "Gerenciamento de usuários"
+        }
+    ]
+}
