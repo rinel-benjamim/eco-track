@@ -54,6 +54,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Instalar dependências do Vite e rodar o build
 RUN npm install && npm run build
 
+RUN composer require fakerphp/faker --no-interaction --no-scripts
+
+
 # Rodar as migrações com seed (somente se o banco de dados SQLite estiver configurado corretamente)
 RUN php artisan migrate --seed --force
 
