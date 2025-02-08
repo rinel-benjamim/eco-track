@@ -17,7 +17,11 @@ class ActivityController extends Controller
     {
         $activities = Activity::where('user_id', Auth::id())->get();
 
-        return response()->json($activities, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Atividades recuperadas com sucesso.',
+            'data' => $activities
+        ], 200);
     }
 
     /**
@@ -29,7 +33,7 @@ class ActivityController extends Controller
             'description' => 'required|string|max:500',
             'points' => 'required|integer|min:1',
             'title' => 'required|string|max:255',
-            'category'=> 'required|string|max:255'
+            'category' => 'required|string|max:255'
         ]);
 
         // Criar a atividade
@@ -95,5 +99,53 @@ class ActivityController extends Controller
         $activity->delete();
 
         return response()->json(['message' => 'Atividade excluída com sucesso'], 200);
+    }
+
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $request->validate([
+            'description' => 'sometimes|string|max:500',
+            'points' => 'sometimes|integer|min:1',
+            'title' => 'sometimes|string|max:255',
+            'category' => 'sometimes|in:Reciclagem,Energia,Água,Mobilidade'
+        ]);
+
+        // Buscar a atividade do usuário autenticado
+        $activity = Activity::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$activity) {
+            return response()->json(['message' => 'Atividade não encontrada'], 404);
+        }
+
+        // Verifica se pontos foram enviados na requisição
+        if ($request->has('points')) {
+            $oldPoints = $activity->points;
+            $newPoints = $request->points;
+
+            if ($oldPoints !== $newPoints) { // Só atualizar se os valores forem diferentes
+                $userPoints = Point::where('user_id', Auth::id())->first();
+
+                if ($userPoints) {
+                    $userPoints->points += ($newPoints - $oldPoints);
+                    $userPoints->save();
+                }
+
+                $activity->points = $newPoints;
+            }
+        }
+
+        // Atualizar os demais campos (evita update vazio)
+        $activity->fill($request->only(['description', 'title', 'category']));
+
+        if ($activity->isDirty()) { // Só salva se houver mudanças
+            $activity->save();
+        }
+
+        return response()->json([
+            'message' => 'Atividade atualizada com sucesso!',
+            'activity' => $activity
+        ], 200);
     }
 }
